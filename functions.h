@@ -32,45 +32,115 @@ Image resolution_x4(Image image);
 Image poor_quality(Image image);
 Image histogram_equalization(Image image);
 Image local_histogram_equalization(Image image);
+Image blurring(Image image);
+Image laplace2(Image image);
+Image laplace(Image image);
 
-// Efeiro de bluring (borramento)
-Image bluring(Image image) {
-    int filterSize, sum;
-    Image equalized_image;
-    equalized_image.numrows = image.numrows;
-    equalized_image.numcols = image.numcols;
-    equalized_image.array = (int **) malloc(equalized_image.numrows * sizeof(int *));
-    for (int row = 0; row < equalized_image.numrows; ++row) {
-        equalized_image.array[row] = (int *) malloc(equalized_image.numcols * sizeof(int));
+// Filtro Laplaciano de máscara diagonal
+Image laplace(Image image) {
+    int filterSize = 3;
+    int laplacianFilter[3][3] = {
+            {0, -1, 0},
+            {-1,  4, -1},
+            {0, -1, 0}
+    };
+
+    Image filtered_image;
+    filtered_image.numrows = image.numrows;
+    filtered_image.numcols = image.numcols;
+    filtered_image.array = (int **)malloc(filtered_image.numrows * sizeof(int *));
+    for (int row = 0; row < filtered_image.numrows; ++row) {
+        filtered_image.array[row] = (int *)malloc(filtered_image.numcols * sizeof(int));
     }
 
-    filterSize = 9;
-    int hist[9] = {0};
     for (int row = 0; row < image.numrows; row++) {
         for (int col = 0; col < image.numcols; col++) {
-            // Zerar o histograma
-            for (int i = 0; i < 8; i++) {
-                hist[i] = 0;
-            }
-
-            for (int i = row - 1; i <= row + 1; i++) {
-                for (int j = col - 1; j <= col + 1; j++) {
-                    if (i >= 0 && i < image.numrows && j >= 0 && j < image.numcols) {
-                        hist[image.array[i][j]]++;
+            int sum = 0;
+            for (int i = 0; i < filterSize; i++) {
+                for (int j = 0; j < filterSize; j++) {
+                    int neighbor_row = row - filterSize/2 + i;
+                    int neighbor_col = col - filterSize/2 + j;
+                    if (neighbor_row >= 0 && neighbor_row < image.numrows &&
+                        neighbor_col >= 0 && neighbor_col < image.numcols) {
+                        sum += image.array[neighbor_row][neighbor_col] * laplacianFilter[i][j];
                     }
                 }
             }
-
-            sum = 0;
-            for (int i = 0; i < 8; i++) {
-                sum += hist[i];
-            }
-
-            equalized_image.array[row][col] = sum/9;
+            filtered_image.array[row][col] = clamp(sum, 0, 255);
         }
     }
 
-    return equalized_image;
+    return filtered_image;
+}
+
+// Filtro Laplaciano de máscara de vizinhança-8
+Image laplace2(Image image) {
+    int filterSize = 3;
+    int laplacianFilter[3][3] = {
+            {-1, -1, -1},
+            {-1,  8, -1},
+            {-1, -1, -1}
+    };
+
+    Image filtered_image;
+    filtered_image.numrows = image.numrows;
+    filtered_image.numcols = image.numcols;
+    filtered_image.array = (int **)malloc(filtered_image.numrows * sizeof(int *));
+    for (int row = 0; row < filtered_image.numrows; ++row) {
+        filtered_image.array[row] = (int *)malloc(filtered_image.numcols * sizeof(int));
+    }
+
+    for (int row = 0; row < image.numrows; row++) {
+        for (int col = 0; col < image.numcols; col++) {
+            int sum = 0;
+            for (int i = 0; i < filterSize; i++) {
+                for (int j = 0; j < filterSize; j++) {
+                    int neighbor_row = row - filterSize/2 + i;
+                    int neighbor_col = col - filterSize/2 + j;
+                    if (neighbor_row >= 0 && neighbor_row < image.numrows &&
+                        neighbor_col >= 0 && neighbor_col < image.numcols) {
+                        sum += image.array[neighbor_row][neighbor_col] * laplacianFilter[i][j];
+                    }
+                }
+            }
+            filtered_image.array[row][col] = clamp(sum, 0, 255);
+        }
+    }
+
+    return filtered_image;
+}
+
+// Efeiro de bluring (borramento)
+Image blurring(Image image) {
+    int filterSize = 9;
+    Image blurred_image;
+    blurred_image.numrows = image.numrows;
+    blurred_image.numcols = image.numcols;
+    blurred_image.array = (int **)malloc(blurred_image.numrows * sizeof(int *));
+    for (int row = 0; row < blurred_image.numrows; ++row) {
+        blurred_image.array[row] = (int *)malloc(blurred_image.numcols * sizeof(int));
+    }
+
+    for (int row = 0; row < image.numrows; row++) {
+        for (int col = 0; col < image.numcols; col++) {
+            int sum = 0;
+            int count = 0;
+            for (int i = -filterSize/2; i <= filterSize/2; i++) {
+                for (int j = -filterSize/2; j <= filterSize/2; j++) {
+                    int neighbor_row = row + i;
+                    int neighbor_col = col + j;
+                    if (neighbor_row >= 0 && neighbor_row < image.numrows &&
+                        neighbor_col >= 0 && neighbor_col < image.numcols) {
+                        sum += image.array[neighbor_row][neighbor_col];
+                        count++;
+                    }
+                }
+            }
+            blurred_image.array[row][col] = sum / count;
+        }
+    }
+
+    return blurred_image;
 }
 
 // Equalização local de histograma

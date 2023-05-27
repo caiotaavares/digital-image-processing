@@ -21,6 +21,7 @@ int main() {
     cout << "\n3.quadrados.pgm";
     cout << "\n4.tungsten_original.pgm";
     cout << "\n5.blurring.pgm";
+    cout << "\n6.blurry_moon.pgm";
     cout <<  "\n\nEscolha #/> ";
     cin >> imgChoice;
 
@@ -34,6 +35,8 @@ int main() {
         file_name = "/home/caiotavares/Documents/pdi/conteudo_04/images/tungsten_original.pgm";
     } else if (imgChoice == 5) {
         file_name = "/home/caiotavares/Documents/pdi/conteudo_04/images/blurring.pgm";
+    } else if (imgChoice == 6) {
+        file_name = "/home/caiotavares/Documents/pdi/conteudo_04/images/blurry_moon.pgm";
     }
 
 
@@ -63,6 +66,8 @@ int main() {
     cout << "\n14.Equalização de histograma";
     cout << "\n15.Equalização local de histograma";
     cout << "\n16.Bluring";
+    cout << "\n17.Laplaciano de máscara diagonal";
+    cout << "\n18.Laplaciano de máscara de vizinhança-8";
     cout <<  "\n\nEscolha #/> ";
     cin >> choice;
 
@@ -165,7 +170,11 @@ int main() {
     } else if (choice == 15) {
         image = local_histogram_equalization(image);
     } else if (choice == 16) {
-        image = bluring(image);
+        image = blurring(image);
+    } else if (choice == 17) {
+        image = laplace(image);
+    } else if (choice == 18) {
+        image = laplace2(image);
     }
 
     for(int row = 0; row < image.numrows; ++row) {

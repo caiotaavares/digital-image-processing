@@ -9,12 +9,35 @@ int main() {
 //    std::cout << pixel << " pixel depois do calculo\n";
 //    pixel = proportion_to_0_255(pixel);
 //    std::cout << pixel << " pixel passado para 255\n";
-    int choice, p, k;
 
-    char *file_name = (char *)"/home/caiotavares/Documents/pdi/conteudo_04/ctskull-256.pgm";
-    char *new_file_name = (char *)"/home/caiotavares/Documents/pdi/conteudo_04/NEW-ctskull-256.pgm";
+    int imgChoice, choice, p, k;
+    const char *file_name = nullptr;
+    char *new_file_name = (char *)"/home/caiotavares/Documents/pdi/conteudo_04/imge-input.pgm";
 
-    Image image = read_image(file_name);
+    // O usuário escolhe a imagem que deseja usar:
+    cout << "\nQual imagem deseja usar?";
+    cout << "\n1.lena256.pgm";
+    cout << "\n2.ctskull-256.pgm";
+    cout << "\n3.quadrados.pgm";
+    cout << "\n4.tungsten_original.pgm";
+    cout << "\n5.blurring.pgm";
+    cout <<  "\n\nEscolha #/> ";
+    cin >> imgChoice;
+
+    if (imgChoice == 1) {
+        file_name = "/home/caiotavares/Documents/pdi/conteudo_04/images/lena-256.pgm";
+    } else if (imgChoice == 2) {
+        file_name = "/home/caiotavares/Documents/pdi/conteudo_04/images/ctskull-256.pgm";
+    } else if (imgChoice == 3) {
+        file_name = "/home/caiotavares/Documents/pdi/conteudo_04/images/quadrados.pgm";
+    } else if (imgChoice == 4) {
+        file_name = "/home/caiotavares/Documents/pdi/conteudo_04/images/tungsten_original.pgm";
+    } else if (imgChoice == 5) {
+        file_name = "/home/caiotavares/Documents/pdi/conteudo_04/images/blurring.pgm";
+    }
+
+
+    Image image = read_image((char *) file_name);
 
     //Now print the array to see the result
     for(int row = 0; row < image.numrows; ++row) {
@@ -39,7 +62,7 @@ int main() {
     cout << "\n13.Diminuir resolução (/4)";
     cout << "\n14.Equalização de histograma";
     cout << "\n15.Equalização local de histograma";
-
+    cout << "\n16.Bluring";
     cout <<  "\n\nEscolha #/> ";
     cin >> choice;
 
@@ -141,6 +164,8 @@ int main() {
         image = histogram_equalization(image);
     } else if (choice == 15) {
         image = local_histogram_equalization(image);
+    } else if (choice == 16) {
+        image = bluring(image);
     }
 
     for(int row = 0; row < image.numrows; ++row) {

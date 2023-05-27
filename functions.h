@@ -33,6 +33,46 @@ Image poor_quality(Image image);
 Image histogram_equalization(Image image);
 Image local_histogram_equalization(Image image);
 
+// Efeiro de bluring (borramento)
+Image bluring(Image image) {
+    int filterSize, sum;
+    Image equalized_image;
+    equalized_image.numrows = image.numrows;
+    equalized_image.numcols = image.numcols;
+    equalized_image.array = (int **) malloc(equalized_image.numrows * sizeof(int *));
+    for (int row = 0; row < equalized_image.numrows; ++row) {
+        equalized_image.array[row] = (int *) malloc(equalized_image.numcols * sizeof(int));
+    }
+
+    filterSize = 9;
+    int hist[9] = {0};
+    for (int row = 0; row < image.numrows; row++) {
+        for (int col = 0; col < image.numcols; col++) {
+            // Zerar o histograma
+            for (int i = 0; i < 8; i++) {
+                hist[i] = 0;
+            }
+
+            for (int i = row - 1; i <= row + 1; i++) {
+                for (int j = col - 1; j <= col + 1; j++) {
+                    if (i >= 0 && i < image.numrows && j >= 0 && j < image.numcols) {
+                        hist[image.array[i][j]]++;
+                    }
+                }
+            }
+
+            sum = 0;
+            for (int i = 0; i < 8; i++) {
+                sum += hist[i];
+            }
+
+            equalized_image.array[row][col] = sum/9;
+        }
+    }
+
+    return equalized_image;
+}
+
 // Equalização local de histograma
 Image local_histogram_equalization(Image image) {
     Image equalized_image;
@@ -49,7 +89,7 @@ Image local_histogram_equalization(Image image) {
 
     for (int row = 0; row < image.numrows; row++) {
         for (int col = 0; col < image.numcols; col++) {
-            // Zerar o histograma para cada pixel
+            // Zerar o histograma
             for (int i = 0; i < 256; i++) {
                 hist[i] = 0;
             }

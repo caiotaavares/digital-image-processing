@@ -35,6 +35,95 @@ Image local_histogram_equalization(Image image);
 Image blurring(Image image);
 Image laplace2(Image image);
 Image laplace(Image image);
+Image median_filter(Image image);
+int findMedian(int pixel[3][3]);
+Image highBoost_filter(Image image, double boostFactor);
+
+// High-Boost filter
+Image highBoost_filter(Image image, double boostFactor) {
+    int filterSize = 3;
+    Image filtered_image;
+    filtered_image.numrows = image.numrows;
+    filtered_image.numcols = image.numcols;
+    filtered_image.array = (int **)malloc(filtered_image.numrows * sizeof(int *));
+    for (int row = 0; row < filtered_image.numrows; ++row) {
+        filtered_image.array[row] = (int *)malloc(filtered_image.numcols * sizeof(int));
+    }
+
+    // Cria uma imagem borrada
+    Image blurred_image = blurring(image);
+
+    // Cria uma máscara subtraindo a imagem borrada da original
+    for (int row = 0; row < image.numrows; row++) {
+        for (int col = 0; col < image.numcols; col++) {
+            int mask_value = image.array[row][col] - blurred_image.array[row][col];
+            int filtered_value = (int)(image.array[row][col] + boostFactor * mask_value);
+            filtered_image.array[row][col] = clamp(filtered_value, 0, 255);
+        }
+    }
+
+    return filtered_image;
+}
+
+
+int findMedian(int pixel[3][3]) {
+    int values[9];
+    int k = 0;
+
+    // Extrai os valores da matriz 3x3 e os armazena em um array
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            values[k++] = pixel[i][j];
+        }
+    }
+
+    // Ordena os valores em ordem crescente
+    for (int i = 0; i < 9 - 1; i++) {
+        for (int j = 0; j < 9 - i - 1; j++) {
+            if (values[j] > values[j + 1]) {
+                int temp = values[j];
+                values[j] = values[j + 1];
+                values[j + 1] = temp;
+            }
+        }
+    }
+
+    // Retorna o valor mediano, que está no meio do array ordenado
+    return values[4];
+}
+
+// Filtro da mediana
+Image median_filter(Image image) {
+    int filterSize = 3;
+    Image filtered_image;
+    filtered_image.numrows = image.numrows;
+    filtered_image.numcols = image.numcols;
+    filtered_image.array = (int **)malloc(filtered_image.numrows * sizeof(int *));
+    for (int row = 0; row < filtered_image.numrows; ++row) {
+        filtered_image.array[row] = (int *)malloc(filtered_image.numcols * sizeof(int));
+    }
+
+    for (int row = 0; row < image.numrows; row++) {
+        for (int col = 0; col < image.numcols; col++) {
+
+            int pixel[3][3] = {0};
+            for (int i = 0; i < filterSize; i++) {
+                for (int j = 0; j < filterSize; j++) {
+                    int neighbor_row = row - filterSize/2 + i;
+                    int neighbor_col = col - filterSize/2 + j;
+                    if (neighbor_col >= 0 && neighbor_col < image.numcols &&
+                        neighbor_row >= 0 && neighbor_row < image.numrows) {
+                        pixel[i][j] = image.array[neighbor_row][neighbor_col];
+                    }
+                }
+            }
+
+            filtered_image.array[row][col] = findMedian(pixel);
+        }
+    }
+
+    return filtered_image;
+}
 
 // Filtro Laplaciano de máscara diagonal
 Image laplace(Image image) {
@@ -569,8 +658,5 @@ Image turn_plus_180(Image image) {
 
     return sup_image;
 }
-
-// Equalização local de histograma
-
 
 #endif //CONTEUDO_03_FUNCTIONS_H

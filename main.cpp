@@ -22,6 +22,8 @@ int main() {
     cout << "\n4.tungsten_original.pgm";
     cout << "\n5.blurring.pgm";
     cout << "\n6.blurry_moon.pgm";
+    cout << "\n7.placa_circuito.pgm";
+    cout << "\n8.dipxe_texto.pgm";
     cout <<  "\n\nEscolha #/> ";
     cin >> imgChoice;
 
@@ -37,8 +39,11 @@ int main() {
         file_name = "/home/caiotavares/Documents/pdi/conteudo_04/images/blurring.pgm";
     } else if (imgChoice == 6) {
         file_name = "/home/caiotavares/Documents/pdi/conteudo_04/images/blurry_moon.pgm";
+    } else if (imgChoice == 7) {
+        file_name = "/home/caiotavares/Documents/pdi/conteudo_04/images/placa_circuito.pgm";
+    } else if (imgChoice == 8) {
+        file_name = "/home/caiotavares/Documents/pdi/conteudo_04/images/dipxe_texto.pgm";
     }
-
 
     Image image = read_image((char *) file_name);
 
@@ -68,6 +73,8 @@ int main() {
     cout << "\n16.Bluring";
     cout << "\n17.Laplaciano de máscara diagonal";
     cout << "\n18.Laplaciano de máscara de vizinhança-8";
+    cout << "\n19.Filtro da mediana";
+    cout << "\n20.Filtragem High-boost";
     cout <<  "\n\nEscolha #/> ";
     cin >> choice;
 
@@ -175,6 +182,12 @@ int main() {
         image = laplace(image);
     } else if (choice == 18) {
         image = laplace2(image);
+    } else  if (choice == 19) {
+        image = median_filter(image);
+    } else if (choice == 20) {
+        cout << "k: #/> ";
+        cin >> k;
+        image = highBoost_filter(image, k);
     }
 
     for(int row = 0; row < image.numrows; ++row) {
